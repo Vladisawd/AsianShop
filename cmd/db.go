@@ -5,15 +5,17 @@ import (
 	"fmt"
 )
 
-var db *sql.DB
-
-func connect() error {
+func connect(conf setting) *sql.DB {
 	var err error
 
-	db, err = sql.Open("postgres", fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", cfg.PgHost, cfg.PgPort, cfg.PgBase, cfg.PgUser, cfg.PgPassword))
+	db, err := sql.Open("postgres", fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", conf.PgHost, conf.PgPort, conf.PgBase, conf.PgUser, conf.PgPassword))
 	if err != nil {
-		return err
+		panic(fmt.Sprintf("Нет коннекта %s", err))
 	}
 
-	return nil
+	if err = db.Ping(); err != nil {
+		panic(fmt.Sprintf("Нет коннекта к БД %s", err))
+	}
+
+	return db
 }

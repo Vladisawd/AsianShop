@@ -7,14 +7,11 @@ import (
 )
 
 func main() {
-	con := connect()
-	if con != nil {
-		fmt.Println(con.Error())
-		return
-	}
-	fmt.Println("Ready!")
+	conf := newConf()
 
-	_, err := db.Exec(`INSERT INTO "user" ("name") VALUES('Aboba')`)
+	con := connect(conf)
+
+	_, err := con.Exec(`INSERT INTO "user" ("name") VALUES('Aboba')`)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
