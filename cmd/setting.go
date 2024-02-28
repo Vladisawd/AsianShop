@@ -16,38 +16,33 @@ type setting struct {
 	PgBase     string
 }
 
-var cfg setting
+func newConf() setting {
 
-func init() {
 	file, err := os.Open("setting.cfg")
 	if err != nil {
-		fmt.Println(err.Error())
-
-		panic("Не удалось открыть файл")
+		panic(fmt.Sprintf("Не удалось открыть файл %s", err))
 	}
 
 	defer file.Close()
 
 	stat, err := file.Stat()
 	if err != nil {
-		fmt.Println(err.Error())
-
-		panic("Не удалось прочитать информацию о файле")
+		panic(fmt.Sprintf("Не удалось прочитать информацию о файле %s", err))
 	}
 
 	fileByte := make([]byte, stat.Size())
 
 	_, err = file.Read(fileByte)
 	if err != nil {
-		fmt.Println(err.Error())
-
-		panic("Не удалось прочитать файл конфигурации")
+		panic(fmt.Sprintf("Не удалось прочитать файл конфигурации %s", err))
 	}
 
-	err = json.Unmarshal(fileByte, &cfg)
+	var conf setting
+
+	err = json.Unmarshal(fileByte, &conf)
 	if err != nil {
-		fmt.Println(err.Error())
-
-		panic("Не считать данные")
+		panic(fmt.Sprintf("Не считать данные %s", err))
 	}
+
+	return conf
 }
