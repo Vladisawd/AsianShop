@@ -13,11 +13,12 @@ type Users struct {
 }
 
 func handler() {
+	conf := newConf()
 	http.HandleFunc("/user", userHandler)
 	http.HandleFunc("/health", healthCheckHandler)
 
-	log.Printf("Сервер работает. Порт:8080")
-	err := http.ListenAndServe("localhost:8080", nil) //conf.ServerHost+":"+conf.ServerPort
+	log.Printf("Сервер %s работает. Порт:%s", conf.ServerHost, conf.ServerPort)
+	err := http.ListenAndServe(conf.ServerHost+":"+conf.ServerPort, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
