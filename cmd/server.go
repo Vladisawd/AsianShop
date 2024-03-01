@@ -8,11 +8,9 @@ import (
 )
 
 type Users struct {
-	id   int
-	name string
+	Id   int
+	Name string
 }
-
-var user []Users
 
 func handler() {
 	http.HandleFunc("/user", userHandler)
@@ -37,13 +35,24 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
-
-	err := json.NewEncoder(w).Encode(user)
+	con := connect(newConf())
+	user, err := con.Query(`SELECT "id", "name" FROM "user"`)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusMethodNotAllowed)
-		return
+		fmt.Println(err.Error())
 	}
-	fmt.Fprintf(w, "Пользователь: '%v'", user)
+
+	for user.Next() {
+		var u Users
+		err = user.Scan(&u.Id, &u.Name)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		err := json.NewEncoder(w).Encode(fmt.Sprintf("id: %d, name: %s", u.Id, u.Name))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 }
 
 func postUser(w http.ResponseWriter, r *http.Request) {
@@ -54,8 +63,12 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user = append(user, newUser)
-	fmt.Fprintf(w, "Успешно добавил нового пользователя: '%v'", newUser)
+	con := connect(newConf())
+	_, er := con.Exec(fmt.Sprintf(`INSERT INTO "user" ("id","name") VALUES(%d, '%s')`, newUser.Id, newUser.Name))
+	if er != nil {
+		fmt.Println(er.Error())
+	}
+	fmt.Fprintf(w, "Успешно добавил нового пользователя: %d, %s)", newUser.Id, newUser.Name)
 }
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
