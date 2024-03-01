@@ -65,7 +65,7 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	con := connect(newConf())
-	_, er := con.Exec(fmt.Sprintf(`INSERT INTO "user" ("id","name") VALUES(%d, '%s')`, newUser.Id, newUser.Name))
+	_, er := con.Exec(fmt.Sprintf(`INSERT INTO "user" ("id","name") VALUES(%d,'%s')`, newUser.Id, newUser.Name))
 	if er != nil {
 		fmt.Println(er.Error())
 	}
